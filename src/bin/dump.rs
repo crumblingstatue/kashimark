@@ -4,8 +4,8 @@ fn main() {
     let lines = kashimark::parse(&s);
     for line in lines {
         for track in line.tracks {
-            match track {
-                kashimark::Track::Timing(timing_track) => {
+            match track.data {
+                kashimark::TrackData::Timing(timing_track) => {
                     for seg in timing_track.segments {
                         match seg {
                             kashimark::TimedSegOrFill::Seg(timed_segment) => {
@@ -23,7 +23,7 @@ fn main() {
                         }
                     }
                 }
-                kashimark::Track::Raw(s) => eprintln!("{s}"),
+                kashimark::TrackData::Raw(s) => eprintln!("{s}"),
             }
             eprintln!();
         }

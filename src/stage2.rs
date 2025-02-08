@@ -1,7 +1,13 @@
 use crate::stage1::{self, Block};
 
 #[derive(Debug)]
-pub enum Track {
+pub struct Track {
+    pub id: u8,
+    pub data: TrackData,
+}
+
+#[derive(Debug)]
+pub enum TrackData {
     Timing(TimingTrack),
     Raw(String),
 }
@@ -44,7 +50,7 @@ impl RangeExt for std::ops::Range<usize> {
 
 impl Line {
     fn parse(block: &Block) -> Self {
-        let mut tracks = Vec::new();
+        let mut tracks: Vec<Track> = Vec::new();
         let mut seg_count = None;
         // Collect the "base" tracks that won't be merged into other tracks
         for line in &block.lines {
@@ -87,7 +93,7 @@ impl Line {
                         // TODO: "Filling" is done based on previous track right now
                         // Should be based on longest, right now we assume previous is longest, which
                         // is only true in very specific scenarios (one romaji track followed by one kanji track)
-                        if let Some(Track::Timing(prev)) = tracks.last() {
+                        if let Some(TrackData::Timing(prev)) = tracks.last().map(|tr| &tr.data) {
                             loop {
                                 // TODO: We furthermore assume it's not a filler
                                 let TimedSegOrFill::Seg(prev_seg) = &prev.segments[i + add_offset]
@@ -105,7 +111,7 @@ impl Line {
                     }
                     // TODO: Ugly, but we check if the segments are the same length (they should be)
                     // Since the gaps are filled by `Fill` segments
-                    if let Some(Track::Timing(prev)) = tracks.last() {
+                    if let Some(TrackData::Timing(prev)) = tracks.last().map(|tr| &tr.data) {
                         assert!(
                             prev.segments.len() == segments.len(),
                             "Segment length mismatch on block {:#?}",
@@ -113,10 +119,16 @@ impl Line {
                         );
                     }
                     seg_count = Some(segments.len());
-                    tracks.push(Track::Timing(TimingTrack { segments }));
+                    tracks.push(Track {
+                        id: line.track_id,
+                        data: TrackData::Timing(TimingTrack { segments }),
+                    });
                 }
                 stage1::LineKind::Raw => {
-                    tracks.push(Track::Raw(fw_to_hw(line.content)));
+                    tracks.push(Track {
+                        id: line.track_id,
+                        data: TrackData::Raw(fw_to_hw(line.content)),
+                    });
                 }
                 _ => {}
             }
