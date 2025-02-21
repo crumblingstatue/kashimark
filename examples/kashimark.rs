@@ -1,6 +1,28 @@
+use {clap::Parser, std::path::PathBuf};
+
+#[derive(clap::Parser)]
+struct Args {
+    path: PathBuf,
+    #[clap(subcommand)]
+    cmd: Cmd,
+}
+
+#[derive(clap::Subcommand, Clone)]
+enum Cmd {
+    /// Dump parsed contents of kashimark file
+    Dump,
+}
+
 fn try_main() -> Result<(), Box<dyn std::error::Error>> {
-    let path = std::env::args_os().nth(1).expect("Need path");
-    let s = std::fs::read_to_string(path).unwrap();
+    let args = Args::parse();
+    let s = std::fs::read_to_string(args.path).unwrap();
+    match args.cmd {
+        Cmd::Dump => dump(s)?,
+    }
+    Ok(())
+}
+
+fn dump(s: String) -> Result<(), kashimark::ParseError> {
     let lines = kashimark::parse(&s)?;
     for line in lines {
         for track in line.tracks {
