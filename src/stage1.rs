@@ -1,3 +1,5 @@
+use crate::{ParseError, ParseErrorKind};
+
 #[derive(Debug)]
 pub struct Block<'s> {
     pub lines: Vec<Line<'s>>,
@@ -28,22 +30,36 @@ impl LineKind {
     }
 }
 
-pub fn parse(src: &str) -> Vec<Block> {
+pub fn parse(src: &str) -> Result<Vec<Block>, ParseError> {
     let mut blocks = Vec::new();
     let mut lines = Vec::new();
-    for line in src.lines() {
+    for (i, line) in src.lines().enumerate() {
+        macro_rules! ret_err {
+            ($kind:expr) => {
+                return Err(ParseError {
+                    line: i + 1,
+                    kind: $kind,
+                })
+            };
+        }
         let line = line.trim();
         if line.is_empty() && !lines.is_empty() {
             blocks.push(Block {
                 lines: std::mem::take(&mut lines),
             });
         } else {
-            let (id, content) = line.split_once('　').unwrap();
-            let [kind_ch, track_ch] = id.as_bytes() else {
-                panic!("Invalid track id format @ {line}");
+            let Some((id, content)) = line.split_once('　') else {
+                ret_err!(ParseErrorKind::IdContentSplit);
             };
-            let kind = LineKind::try_from_ascii(*kind_ch).unwrap();
-            let track_id: u8 = track_ch.checked_sub(b'0').unwrap();
+            let [kind_ch, track_ch] = id.as_bytes() else {
+                ret_err!(ParseErrorKind::InvalidTrackIdFormat);
+            };
+            let Some(kind) = LineKind::try_from_ascii(*kind_ch) else {
+                ret_err!(ParseErrorKind::InvalidLineKind { raw: *kind_ch });
+            };
+            let Some(track_id): Option<u8> = track_ch.checked_sub(b'0') else {
+                ret_err!(ParseErrorKind::InvalidTrackId { raw: *track_ch });
+            };
             lines.push(Line {
                 kind,
                 track_id,
@@ -56,5 +72,5 @@ pub fn parse(src: &str) -> Vec<Block> {
             lines: std::mem::take(&mut lines),
         });
     }
-    blocks
+    Ok(blocks)
 }

@@ -1,7 +1,7 @@
-fn main() {
+fn try_main() -> Result<(), Box<dyn std::error::Error>> {
     let path = std::env::args_os().nth(1).expect("Need path");
     let s = std::fs::read_to_string(path).unwrap();
-    let lines = kashimark::parse(&s);
+    let lines = kashimark::parse(&s)?;
     for line in lines {
         for track in line.tracks {
             match track.data {
@@ -28,5 +28,12 @@ fn main() {
             eprintln!();
         }
         eprintln!("===\n");
+    }
+    Ok(())
+}
+
+fn main() {
+    if let Err(e) = try_main() {
+        eprintln!("Fatal error: {e}");
     }
 }
