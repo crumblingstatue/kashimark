@@ -96,9 +96,12 @@ impl Line {
                         if let Some(TrackData::Timing(prev)) = tracks.last().map(|tr| &tr.data) {
                             loop {
                                 // TODO: We furthermore assume it's not a filler
-                                let TimedSegOrFill::Seg(prev_seg) = &prev.segments[i + add_offset]
+                                let Some(TimedSegOrFill::Seg(prev_seg)) =
+                                    &prev.segments.get(i + add_offset)
                                 else {
-                                    panic!("We assumed it wouldn't be a filler");
+                                    panic!(
+                                        "We assumed it wouldn't be a filler.\nBlock dump:\n{block:#?}"
+                                    );
                                 };
                                 if seg.end > prev_seg.span.end {
                                     segments.push(TimedSegOrFill::Fill);

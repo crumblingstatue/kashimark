@@ -9,3 +9,4 @@ thiserror = "2.0.11"
 [dev-dependencies]
 clap.version = "4.5.30"
 clap.features = ["derive"]
+fw-conv.git = "https://github.com/crumblingstatue/fw-conv.git"

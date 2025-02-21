@@ -1,4 +1,7 @@
-use {clap::Parser, std::path::PathBuf};
+use {
+    clap::Parser,
+    std::{io::Write, path::PathBuf},
+};
 
 #[derive(clap::Parser)]
 struct Args {
@@ -11,6 +14,8 @@ struct Args {
 enum Cmd {
     /// Dump parsed contents of kashimark file
     Dump,
+    /// Convert to fullwidth text (for positioning)
+    ToFw,
 }
 
 fn try_main() -> Result<(), Box<dyn std::error::Error>> {
@@ -18,6 +23,7 @@ fn try_main() -> Result<(), Box<dyn std::error::Error>> {
     let s = std::fs::read_to_string(args.path).unwrap();
     match args.cmd {
         Cmd::Dump => dump(s)?,
+        Cmd::ToFw => to_fw(s),
     }
     Ok(())
 }
@@ -52,6 +58,18 @@ fn dump(s: String) -> Result<(), kashimark::ParseError> {
         eprintln!("===\n");
     }
     Ok(())
+}
+
+fn to_fw(s: String) {
+    let mut f = std::fs::File::create("/tmp/kashimark-fw.txt").unwrap();
+    for line in s.lines() {
+        if !line.is_empty() {
+            f.write_all(line[0..1].as_bytes()).unwrap();
+            f.write_all(fw_conv::sw_to_fw(&line[1..]).as_bytes())
+                .unwrap();
+        }
+        f.write_all(b"\n").unwrap();
+    }
 }
 
 fn main() {

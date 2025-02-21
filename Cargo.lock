@@ -99,6 +99,14 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "5b63caa9aa9397e2d9480a9b13673856c78d8ac123288526c37d7839f2a86990"
 
 [[package]]
+name = "fw-conv"
+version = "0.1.0"
+source = "git+https://github.com/crumblingstatue/fw-conv.git#59f76aeee6e363539e66ec79c944f06203333e83"
+dependencies = [
+ "clap",
+]
+
+[[package]]
 name = "heck"
 version = "0.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -115,6 +123,7 @@ name = "kashimark"
 version = "0.1.0"
 dependencies = [
  "clap",
+ "fw-conv",
  "thiserror",
 ]
 
