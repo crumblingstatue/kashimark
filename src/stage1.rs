@@ -1,4 +1,7 @@
-use crate::{ParseError, ParseErrorKind};
+use {
+    crate::{ParseError, ParseErrorKind},
+    fw_conv::StrExt,
+};
 
 #[derive(Debug)]
 pub struct Block<'s> {
@@ -51,7 +54,8 @@ pub fn parse(src: &str) -> Result<Vec<Block>, ParseError> {
             let Some((id, content)) = line.split_once('　') else {
                 ret_err!(ParseErrorKind::IdContentSplit);
             };
-            let [kind_ch, track_ch] = id.as_bytes() else {
+            let id_sw = id.to_sw();
+            let [kind_ch, track_ch] = id_sw.as_bytes() else {
                 ret_err!(ParseErrorKind::InvalidTrackIdFormat);
             };
             let Some(kind) = LineKind::try_from_ascii(*kind_ch) else {
