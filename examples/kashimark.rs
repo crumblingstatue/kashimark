@@ -15,8 +15,10 @@ struct Args {
 enum Cmd {
     /// Dump parsed contents of kashimark file
     Dump,
-    /// Toggle text between fullwidth and standard width
-    FwToggle,
+    /// Convert the file to fullwidth
+    ToFw,
+    /// Convert the file to "standard" width
+    ToSw,
 }
 
 fn try_main() -> Result<(), Box<dyn std::error::Error>> {
@@ -24,7 +26,8 @@ fn try_main() -> Result<(), Box<dyn std::error::Error>> {
     let s = std::fs::read_to_string(&args.path).unwrap();
     match args.cmd {
         Cmd::Dump => dump(s)?,
-        Cmd::FwToggle => fw_toggle(s, &args.path),
+        Cmd::ToFw => to_fw(s, &args.path),
+        Cmd::ToSw => to_sw(s, &args.path),
     }
     Ok(())
 }
@@ -61,12 +64,12 @@ fn dump(s: String) -> Result<(), kashimark::ParseError> {
     Ok(())
 }
 
-fn fw_toggle(s: String, path: &Path) {
-    if s.has_fw() {
-        std::fs::write(path, s.to_sw().as_bytes()).unwrap();
-    } else {
-        std::fs::write(path, s.to_fw().as_bytes()).unwrap();
-    }
+fn to_fw(s: String, path: &Path) {
+    std::fs::write(path, s.to_fw().as_bytes()).unwrap();
+}
+
+fn to_sw(s: String, path: &Path) {
+    std::fs::write(path, s.to_sw().as_bytes()).unwrap();
 }
 
 fn main() {
