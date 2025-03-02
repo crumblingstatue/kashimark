@@ -1,7 +1,7 @@
 use {
     clap::Parser,
     fw_conv::StrExt,
-    std::{io::Write, path::PathBuf},
+    std::path::{Path, PathBuf},
 };
 
 #[derive(clap::Parser)]
@@ -15,16 +15,16 @@ struct Args {
 enum Cmd {
     /// Dump parsed contents of kashimark file
     Dump,
-    /// Convert to fullwidth text (for positioning)
-    ToFw,
+    /// Toggle text between fullwidth and standard width
+    FwToggle,
 }
 
 fn try_main() -> Result<(), Box<dyn std::error::Error>> {
     let args = Args::parse();
-    let s = std::fs::read_to_string(args.path).unwrap();
+    let s = std::fs::read_to_string(&args.path).unwrap();
     match args.cmd {
         Cmd::Dump => dump(s)?,
-        Cmd::ToFw => to_fw(s),
+        Cmd::FwToggle => fw_toggle(s, &args.path),
     }
     Ok(())
 }
@@ -61,14 +61,11 @@ fn dump(s: String) -> Result<(), kashimark::ParseError> {
     Ok(())
 }
 
-fn to_fw(s: String) {
-    let mut f = std::fs::File::create("/tmp/kashimark-fw.txt").unwrap();
-    for line in s.lines() {
-        if !line.is_empty() {
-            f.write_all(&line.as_bytes()[0..1]).unwrap();
-            f.write_all(line[1..].to_fw().as_bytes()).unwrap();
-        }
-        f.write_all(b"\n").unwrap();
+fn fw_toggle(s: String, path: &Path) {
+    if s.has_fw() {
+        std::fs::write(path, s.to_sw().as_bytes()).unwrap();
+    } else {
+        std::fs::write(path, s.to_fw().as_bytes()).unwrap();
     }
 }
 

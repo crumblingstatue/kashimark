@@ -101,7 +101,7 @@ checksum = "5b63caa9aa9397e2d9480a9b13673856c78d8ac123288526c37d7839f2a86990"
 [[package]]
 name = "fw-conv"
 version = "0.1.0"
-source = "git+https://github.com/crumblingstatue/fw-conv.git#b1434eb8ea4b3cdde2019df7b624a881627c6151"
+source = "git+https://github.com/crumblingstatue/fw-conv.git#2648d25f7a01580b57afa20b90dd68f17fdaad8c"
 dependencies = [
  "clap",
 ]
