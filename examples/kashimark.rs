@@ -64,7 +64,7 @@ fn to_fw(s: String) {
     let mut f = std::fs::File::create("/tmp/kashimark-fw.txt").unwrap();
     for line in s.lines() {
         if !line.is_empty() {
-            f.write_all(line[0..1].as_bytes()).unwrap();
+            f.write_all(&line.as_bytes()[0..1]).unwrap();
             f.write_all(fw_conv::sw_to_fw(&line[1..]).as_bytes())
                 .unwrap();
         }
