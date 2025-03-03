@@ -117,8 +117,7 @@ impl Line {
                     if let Some(TrackData::Timing(prev)) = tracks.last().map(|tr| &tr.data) {
                         assert!(
                             prev.segments.len() == segments.len(),
-                            "Segment length mismatch on block {:#?}",
-                            block
+                            "Segment length mismatch on block {block:#?}",
                         );
                     }
                     seg_count = Some(segments.len());
@@ -133,7 +132,7 @@ impl Line {
                         data: TrackData::Raw(fw_to_hw(line.content)),
                     });
                 }
-                _ => {}
+                stage1::LineKind::Furigana => {}
             }
         }
         Self {
@@ -173,6 +172,7 @@ fn fw_to_hw(inp: &str) -> String {
             'ａ'..='ｚ' => char::from_u32((ch as u32 - 'ａ' as u32) + 'a' as u32).unwrap(),
             FW_SPACE => ' ',
             // TODO: Technically this doesn't belong here, this is a special character that stands in for whitespace
+            #[expect(clippy::match_same_arms)]
             '／' => ' ',
             _ => ch,
         };

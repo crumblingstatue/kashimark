@@ -25,15 +25,15 @@ fn try_main() -> Result<(), Box<dyn std::error::Error>> {
     let args = Args::parse();
     let s = std::fs::read_to_string(&args.path).unwrap();
     match args.cmd {
-        Cmd::Dump => dump(s)?,
-        Cmd::ToFw => to_fw(s, &args.path),
-        Cmd::ToSw => to_sw(s, &args.path),
+        Cmd::Dump => dump(&s)?,
+        Cmd::ToFw => to_fw(&s, &args.path),
+        Cmd::ToSw => to_sw(&s, &args.path),
     }
     Ok(())
 }
 
-fn dump(s: String) -> Result<(), kashimark::ParseError> {
-    let lines = kashimark::parse(&s)?;
+fn dump(s: &str) -> Result<(), kashimark::ParseError> {
+    let lines = kashimark::parse(s)?;
     for line in lines {
         for track in line.tracks {
             match track.data {
@@ -64,11 +64,11 @@ fn dump(s: String) -> Result<(), kashimark::ParseError> {
     Ok(())
 }
 
-fn to_fw(s: String, path: &Path) {
+fn to_fw(s: &str, path: &Path) {
     std::fs::write(path, s.to_fw().as_bytes()).unwrap();
 }
 
-fn to_sw(s: String, path: &Path) {
+fn to_sw(s: &str, path: &Path) {
     std::fs::write(path, s.to_sw().as_bytes()).unwrap();
 }
 

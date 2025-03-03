@@ -10,3 +10,8 @@ fw-conv.git = "https://github.com/crumblingstatue/fw-conv.git"
 [dev-dependencies]
 clap.version = "4.5.30"
 clap.features = ["derive"]
+
+[lints.clippy]
+pedantic.level = "warn"
+pedantic.priority = -1
+missing_errors_doc = "allow"
