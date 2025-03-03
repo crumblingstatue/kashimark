@@ -74,14 +74,14 @@ impl Line {
                         if let Some((furi_line, furi_spans)) = &furi_spans {
                             for furi_span in furi_spans {
                                 if seg.contains_range(furi_span) {
-                                    furigana = furi_line[furi_span.clone()]
-                                        .trim()
-                                        .split('｜')
-                                        .filter_map(|tok| {
-                                            let trimmed = tok.trim();
-                                            (!trimmed.is_empty()).then(|| String::from(trimmed))
-                                        })
-                                        .collect();
+                                    furigana.extend(
+                                        furi_line[furi_span.clone()].trim().split('｜').filter_map(
+                                            |tok| {
+                                                let trimmed = tok.trim();
+                                                (!trimmed.is_empty()).then(|| String::from(trimmed))
+                                            },
+                                        ),
+                                    );
                                 }
                             }
                         }
@@ -240,4 +240,20 @@ fn test_furigana_spans() {
     assert_eq!(&src[spans[1].clone()], "い｜た");
     assert_eq!(&src[spans[2].clone()], "か｜な");
     assert_eq!(&src[spans[3].clone()], "き｜み");
+}
+
+// Make sure we parse furigana correctly even if it contains (fullwidth) spaces
+#[test]
+fn test_furigana_with_spaces() {
+    let input = "ｔ２　　　　　光　　　　｜が　　｜な　｜く　｜せ　｜ぬ　　｜よ　｜う　｜に　｜
+                 ｆ２　　　ひ｜か　｜り";
+    let blocks = crate::stage1::parse(input).unwrap();
+    let lines = self::parse(blocks);
+    let TrackData::Timing(timing) = &lines.first().unwrap().tracks.first().unwrap().data else {
+        panic!("Not a timing track")
+    };
+    let TimedSegOrFill::Seg(seg) = timing.segments.first().unwrap() else {
+        panic!("Not a segment")
+    };
+    assert_eq!(seg.furigana, ["ひ", "か", "り"]);
 }
