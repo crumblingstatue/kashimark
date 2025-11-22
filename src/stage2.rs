@@ -100,7 +100,8 @@ impl Line {
                                     &prev.segments.get(i + add_offset)
                                 else {
                                     panic!(
-                                        "We assumed it wouldn't be a filler.\nBlock dump:\n{block:#?}"
+                                        "We assumed it wouldn't be a filler.\nBlock dump:\n{block:#?}\n\
+                                        Help: Did you forget to leave an empty new line between song lines?"
                                     );
                                 };
                                 if seg.end > prev_seg.span.end {
