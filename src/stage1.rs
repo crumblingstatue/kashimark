@@ -33,7 +33,7 @@ impl LineKind {
     }
 }
 
-pub fn parse(src: &str) -> Result<Vec<Block>, ParseError> {
+pub fn parse(src: &str) -> Result<Vec<Block<'_>>, ParseError> {
     let mut blocks = Vec::new();
     let mut lines = Vec::new();
     for (i, line) in src.lines().enumerate() {
